@@ -1,0 +1,1 @@
+index: 1, nonce: 920, Timestamp: 1624664734.5686898, transactions: Genesis Block, previous_hash: 00, index: 2, nonce: 110, Timestamp: 1624664734.569309, transactions: [sender: Austin, reciever: Antonio, amount: Genisis Block], previous_hash: 74703b00d6f13885bef79a04ee1eaf4abfd9ae237afc719fd28f90ee6287da0d
