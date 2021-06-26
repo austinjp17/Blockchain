@@ -1,0 +1,8 @@
+index: 1, nonce: 127, Timestamp: 1624737139.24608, initial: Genesis Block, previous_hash: 00 
+
+index: 2, nonce: 1686, Timestamp: 1624737139.294955, transactions: [transaction: 0, sender: Austin, reciever: Antonio, amount: 20 BTC, transaction: 1, sender: Vader, reciever: Frodo, amount: 8 BTC], previous_hash: 009dc618ec983ad036a7e22c61738a614faf1764ee8daf2964c1849826e8b790 
+
+index: 3, nonce: 5118, Timestamp: 1624737139.462582, transactions: [transaction: 0, sender: Will, reciever: Sam, amount: 1000 BTC, transaction: 1, sender: Will, reciever: Same, amount: 1000 BTC], previous_hash: 0002110a116b227bacbf5795bb67d88dee082f82c28061f273cccac281c53a2b 
+
+index: 4, nonce: 10157, Timestamp: 1624737139.800593, transactions: [transaction: 0, sender: Ace, reciever: Ryan, amount: 103 BTC, transaction: 1, sender: Adam, reciever: Leslie, amount: 1090 BTC], previous_hash: 000125084a355fc353b7f66ad457a4fdda1780c425c86ec14f750450a0627fff 
+

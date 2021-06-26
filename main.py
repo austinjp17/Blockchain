@@ -1,41 +1,36 @@
 from hashlib import sha256
-import json
-from time import time
+import json, time
 from random import randint
-from time import sleep
+from typing import ChainMap
 
 class Blockchain:
     
     def __init__(self):
         self.chain = []     #BlockChain 
         self.pending = []   #Data waiting to be approved    
-        self.usedNonces = set()    
-        self.gensis_block()    #Genesis Block
+        self.usedNonces = set()  
+        
     
-    def gensis_block(self, guess):
-        genesis_block = {
+    def genesis_block(self, guess):
+        genesisBlock = {
             'index': 1,
             'nonce': guess,
-            'Timestamp': time(),
+            'Timestamp': time.time(),
             'initial': "Genesis Block",
             'previous_hash': "00"
         }
-        self.chain.append(genesis_block)
-        return genesis_block
+        if self.hash(genesisBlock)[:2] == "00": self.chain.append(genesisBlock)
+        return genesisBlock
         
-    def new_block(self, guess = self.proof_of_work() , previous_hash=None, transactions = 'First', ):
+    def new_block(self, guess):
         block = {
             'index': len(self.chain)+1,
             'nonce': guess,
-            'Timestamp': time(),
-            'transactions': transactions or self.pending,
-            'previous_hash': previous_hash
+            'Timestamp': time.time(),
+            'transactions': self.pending,
+            'previous_hash': self.hash(self.last_block)
         }
-        
-        if self.validation(block) is True:
-            self.chain.append(block)
-        with open('Output.txt', "w") as outputFile:
-            print(str(self.chain).replace("'", "").replace("{", "").replace("}","")[1:-1], file=outputFile)
+        if self.hash(block)[0:3] == "000": self.chain.append(block)
         return block
     
     def proof_of_work(self, block):
@@ -46,36 +41,42 @@ class Blockchain:
         return nonce
     
     #@staticmethod
-    def validation(self, block):
-        hex_guess = self.hash(block)
-        if hex_guess[:2] == '00':
-            print(f'winner: {hex_guess}')
-            return True
-        return False
-    
-    def genesis_validation(self, block):
+    def validation(self):
         nonce = 0
-        hex_guess = self.hash(self.gensis_block(nonce))
+        hex_guess = self.hash(self.new_block(nonce))
+        while hex_guess[:3] != '000':                               #Have to change difficulty in newblock & validation functions, bad
+            nonce +=1
+            hex_guess = self.hash(self.new_block(nonce))
+        print(f"Success: {hex_guess[:5]}\nnonce:{nonce}")
+        return nonce
+
+    
+    def genesis_validation(self):
+        nonce = 0
+        hex_guess = self.hash(self.genesis_block(nonce))
         while hex_guess[:2] != '00':
             nonce +=1
-            hex_guess = self.hash(self.gensis_block(nonce))
-        print(f"winner for genesis: {nonce}")
+            hex_guess = self.hash(self.genesis_block(nonce))
         return nonce
 
-
-    def nonceGuess(self):
-        nonce = randint(1,1000)
-        if nonce in self.usedNonces: nonce = randint(1,1000)    #check if nonce used before
-        self.usedNonces.add(nonce)
-        return nonce
-
-    def newTransaction(self, sender, reciever, amount):
-        self.pending.append({
-            'sender': sender,
-            'reciever': reciever,
-            'amount': amount,
-        })
-        return int(self.last_block['index']) + 1
+    def newTransaction(self, *transactions):
+        transactionCounter = 0  
+        for sender, reciever, amount in transactions:
+            self.pending.append({
+                'transaction' : transactionCounter,
+                'sender': sender,
+                'reciever': reciever,
+                'amount': amount,
+            })
+            transactionCounter+=1
+            if len(self.pending) >= 2:
+                self.validation()
+                self.pending = []
+                transactionCounter = 0
+        
+    def iterate_through_transactions(self):
+        for item in self.pending:
+            return(item)
         
     @property
     def last_block(self):
@@ -88,9 +89,24 @@ class Blockchain:
     def hash(block):
         return sha256(json.dumps(block).encode('utf-8')).hexdigest()
     
+    def main(self):
+        self.genesis_validation()
+        self.newTransaction(('Austin','Antonio','20 BTC'),('Vader','Frodo','8 BTC'),('Will','Sam','1000 BTC'),('Will','Same','1000 BTC'),('Ace','Ryan','103 BTC'),('Adam','Leslie','1090 BTC'),('Deandre','Houston','90 BTC'))
+        
+        with open('full_chain.txt', "w") as outputFile:
+            for block in self.chain:
+                for key, value in block.items():
+                    print(f"k: {key}\nv: {value}")
+                print(f"{str(block)} \n".replace("'", "").replace("{", "").replace("}",""), file=outputFile)
+        return(f"still pending: {self.pending}\nchain: {self.chain}")
+
+
+    
 if __name__ == "__main__":
-    print(Blockchain().chain)
-    #Blockchain().newTransaction(sender='Austin', reciever='Antonio', amount='Genisis Block')
+    Blockchain().main()
+    
+    
     #with open('Output.txt', 'r') as f:
 
-#74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b
+#difficulty function
+#multithreading nonce attempts
