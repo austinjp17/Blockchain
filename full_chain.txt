@@ -1,8 +1,31 @@
-index: 1, nonce: 127, Timestamp: 1624737139.24608, initial: Genesis Block, previous_hash: 00 
-
-index: 2, nonce: 1686, Timestamp: 1624737139.294955, transactions: [transaction: 0, sender: Austin, reciever: Antonio, amount: 20 BTC, transaction: 1, sender: Vader, reciever: Frodo, amount: 8 BTC], previous_hash: 009dc618ec983ad036a7e22c61738a614faf1764ee8daf2964c1849826e8b790 
-
-index: 3, nonce: 5118, Timestamp: 1624737139.462582, transactions: [transaction: 0, sender: Will, reciever: Sam, amount: 1000 BTC, transaction: 1, sender: Will, reciever: Same, amount: 1000 BTC], previous_hash: 0002110a116b227bacbf5795bb67d88dee082f82c28061f273cccac281c53a2b 
-
-index: 4, nonce: 10157, Timestamp: 1624737139.800593, transactions: [transaction: 0, sender: Ace, reciever: Ryan, amount: 103 BTC, transaction: 1, sender: Adam, reciever: Leslie, amount: 1090 BTC], previous_hash: 000125084a355fc353b7f66ad457a4fdda1780c425c86ec14f750450a0627fff 
-
+block 1
+    index : 1
+    nonce : 4449
+    Timestamp : 1
+    initial : Genesis Block
+    previous_hash : 00
+    hash: 000c8b7007bfccc4339b3f3be21d2b5a0e1efc27fece0fead5f8b917452d8c48
+block 2
+    index : 2
+    nonce : 4578
+    Timestamp : 2
+    Transaction pls 0 : [{'transaction': 0, 'sender': 'Austin', 'reciever': 'Antonio', 'amount': '20 BTC'}, {'transaction': 1, 'sender': 'Vader', 'reciever': 'Frodo', 'amount': '8 BTC'}]
+    Transaction pls 1 : [{'transaction': 0, 'sender': 'Austin', 'reciever': 'Antonio', 'amount': '20 BTC'}, {'transaction': 1, 'sender': 'Vader', 'reciever': 'Frodo', 'amount': '8 BTC'}]
+    previous_hash : 000c8b7007bfccc4339b3f3be21d2b5a0e1efc27fece0fead5f8b917452d8c48
+    hash: 000104c74112b4737dd20586eee2a297bd494c849bfc670401c5d892ced3a0ff
+block 3
+    index : 3
+    nonce : 6322
+    Timestamp : 3
+    Transaction pls 0 : [{'transaction': 0, 'sender': 'Will', 'reciever': 'Sam', 'amount': '1000 BTC'}, {'transaction': 1, 'sender': 'Will', 'reciever': 'Same', 'amount': '1000 BTC'}]
+    Transaction pls 1 : [{'transaction': 0, 'sender': 'Will', 'reciever': 'Sam', 'amount': '1000 BTC'}, {'transaction': 1, 'sender': 'Will', 'reciever': 'Same', 'amount': '1000 BTC'}]
+    previous_hash : 000104c74112b4737dd20586eee2a297bd494c849bfc670401c5d892ced3a0ff
+    hash: 0008a610896d3dc9b7d88d12000e63365a7968c70821c90bb0a0aba40833fb2a
+block 4
+    index : 4
+    nonce : 1226
+    Timestamp : 4
+    Transaction pls 0 : [{'transaction': 0, 'sender': 'Ace', 'reciever': 'Ryan', 'amount': '103 BTC'}, {'transaction': 1, 'sender': 'Adam', 'reciever': 'Leslie', 'amount': '1090 BTC'}]
+    Transaction pls 1 : [{'transaction': 0, 'sender': 'Ace', 'reciever': 'Ryan', 'amount': '103 BTC'}, {'transaction': 1, 'sender': 'Adam', 'reciever': 'Leslie', 'amount': '1090 BTC'}]
+    previous_hash : 0008a610896d3dc9b7d88d12000e63365a7968c70821c90bb0a0aba40833fb2a
+    hash: 000366de1e23b74ea9c58a145a0d02a8b80b4c5d299dcad2e3b3116c767ecc44
