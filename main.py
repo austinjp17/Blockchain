@@ -1,14 +1,16 @@
 from hashlib import sha256
 import json, time
-from random import randint
-from typing import ChainMap
+from os import path
+from random import randint, choice
 
 class Blockchain:
-    
     def __init__(self):
+        self.num_blks_to_chk = 3
         self.chain = []     #BlockChain 
         self.pending = []   #Data waiting to be approved    
         self.usedNonces = set()  
+        self.num_of_transactions_per = 1000
+        self.chain_file_path = "/Users/austin/Documents/GitHub/Blockchain/full_chain.json"  
         
     
     def genesis_block(self, guess):
@@ -26,7 +28,7 @@ class Blockchain:
         block = {
             "index": len(self.chain)+1,
             "nonce": guess,
-            "Timestamp": time.time(),
+            "timestamp": time.time(),
             "transactions": self.pending,
             "previous_hash": self.hash(self.last_block)
         }
@@ -40,40 +42,39 @@ class Blockchain:
             nonce +=1
         return nonce
     
-    #@staticmethod
+    # @staticmethod
     def validation(self):
         nonce = 0
         hex_guess = self.hash(self.new_block(nonce))
-        while hex_guess[:3] != '000':                               #Have to change difficulty in newblock & validation functions, bad
+        while hex_guess[:3] != "000":                               #change difficulty in newblock & validation functions, bad
             nonce +=1
             hex_guess = self.hash(self.new_block(nonce))
+            # print(f"\nhexidecimal: {hex_guess}\nnonce: {nonce} \n") #<- next hexidecimal & nonce attempt
+            #time.sleep(1)
         self.successful_hash = hex_guess
-        # print(f"Success: {hex_guess[:5]}\nnonce:{nonce}")
+        #print(f"Success: {hex_guess}\nnonce:{nonce}")       #Successful hexidecimal & nonce
         return nonce
 
     
     def genesis_validation(self):
         nonce = 0
         hex_guess = self.hash(self.genesis_block(nonce))
-        while hex_guess[:3] != '000':
+        while hex_guess[:3] != "000":
             nonce +=1
             hex_guess = self.hash(self.genesis_block(nonce))
         return nonce
 
     def newTransaction(self, *transactions):
-        transactionCounter = 0  
         for sender, reciever, amount in transactions:
             self.pending.append({
-                'transaction' : transactionCounter,
-                'sender': sender,
-                'reciever': reciever,
-                'amount': amount,
+                "transaction" : len(self.pending),
+                "sender": sender,
+                "reciever": reciever,
+                "amount": amount,
             })
-            transactionCounter+=1
-            if len(self.pending) >= 2:
+            if len(self.pending) >= self.num_of_transactions_per:
                 self.validation()
                 self.pending = []
-                transactionCounter = 0
         
     def iterate_through_transactions(self):
         for item in self.pending:
@@ -88,32 +89,92 @@ class Blockchain:
     
     @staticmethod 
     def hash(block):
-        return sha256(json.dumps(block).encode('utf-8')).hexdigest()
-    
+        return sha256(json.dumps(block).encode("utf-8")).hexdigest()
+    @staticmethod
+    def write_out(output, file_path):
+        with open(file_path, "w") as outputFile:
+            json.dump(output, outputFile)
+    def pretty_write_out(self):
+        with open(self.chain_file_path) as f:
+                f = json.load(f)
+                for k, v in f.items():
+                    print(f"{k} : {v}") 
+    def chain_verification(self, their_chain):
+        with open(self.chain_file_path) as master:
+            their_block_compare = None
+            correct_block_compare = None
+            verified_blocks = 0
+            correct_chain = json.loads(master.read())
+            # print(str(len(their_chain)), str(len(correct_chain)))
+            # print(len(correct_chain))
+            random_index = randint(0,len(correct_chain))-1
+            for i in range(0, len(correct_chain)-1):
+                if int(correct_chain[i]['index']) == random_index:
+                    correct_block_compare = correct_chain[i]['index']
+            for i in range(0, len(correct_chain)-1):        
+                if int(their_chain[i]['index']) == random_index:
+                    their_block_compare = their_chain[i]['index']
+            
+            return(their_block_compare == correct_block_compare)
+
     @property
     def difficulty():
         pass # in both validation/block functions
+    def view_block(self, block_num, key=None):
+        if key is None: return self.chain[block_num]
+        else: return self.chain[block_num][key]
+        
+    def start_check_list(self, filepath=None):
+        results = []
+        if path.exists(self.chain_file_path or filepath) is True: #file exists
+            print("Chain found, verifying..")
+            with open(self.chain_file_path or filepath) as f:
+                their_chain = json.loads(f.read())
+                for i in range(self.num_blks_to_chk):
+                    results.append(self.chain_verification(their_chain))
+            if all(results) is True:
+                #verified, break loop
+                self.genesis_validation()
+                
+            
+                
+
+                #doesn't work, need to compare text. Maybe compare last few blocks, option?
+        else: #doesn"t exist or incorrect path
+            print(">> File not found. Change file path or wait for download to begin")
+            time.sleep(1)
+            print(">> Downloading Blockchain..")
+            #download chain from somewhere
+    
     def main(self):
-        self.genesis_validation()
-        self.newTransaction(("Austin","Antonio","20 BTC"),("Vader","Frodo","8 BTC"),("Will","Sam","1000 BTC"),("Will","Same","1000 BTC"),("Ace","Ryan","103 BTC"),("Adam","Leslie","1090 BTC"),("Deandre","Houston","90 BTC"))
-        with open('full_chain.txt', "w") as outputFile:
-            for block in self.chain:
-                print(f"block {block['index']}", file=outputFile)            
-                for key, value in block.items():
-                    if key == 'transactions':
-                        for i in value:
-                            print(f"    Transaction pls {i['transaction']} : {value}", file=outputFile)
-                    else: print(f"    {key} : {value}", file=outputFile)
-                # print(f"{str(block)} \n".replace("'", "").replace("{", "").replace("}",""), file=outputFile)
-                pass
-                print(f"    hash: {self.hash(block)}", file=outputFile)
-        return(f"\n\n\n\nstill pending: {self.pending}\nchain: {self.chain}")
+        # for i in range(20):
+        self.start_check_list()
+        #self.write_out(output=None)        
+        for i in range(20, randint(3000,300000)):
+            with open("first-names.txt", "r") as file:
+                name = choice(list(file))                
+                amount = randint(1,30000)
+                self.newTransaction((name[:3], name[2:],str(amount)+" BTC"))
+        self.write_out(self.chain, file_path=self.chain_file_path)
+        print(self.view_block(-1))
+
+            #self.newTransaction(())
+        #self.newTransaction(("Austin","Antonio","20 BTC"),("Vader","Frodo","8 BTC"),("Will","Sam","1000 BTC"),("Arron","Annie","1000 BTC"),("Ace","Ryan","103 BTC"),("Adam","Leslie","1090 BTC"),("Deandre","Houston","90 BTC"))
+        #self.newTransaction(("After", "Write", "$1"))
+        return(f"\nstill pending({len(self.pending)})\nchain: {self.chain}")
 
 
     
 if __name__ == "__main__":
-    Blockchain().main()
-
+    start_time = time.time()
+    Blockchain().main() 
+    print(time.time() - start_time)
+    # with open('/Users/austin/Documents/GitHub/Blockchain/full_chain.json', 'r') as full_block_list:
+    #     print(full_block_list.read())
 
 #number transactions
 #one difficulty function, in both validation/block creation
+#chain is starting from scratch each time
+#download chain if not found
+#reward system?
+#data being sent?
