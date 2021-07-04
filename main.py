@@ -5,11 +5,11 @@ from random import randint, choice
 
 class Blockchain:
     def __init__(self):
+        self.difficulty = "000"
         self.num_blks_to_chk = 3
         self.chain = []     #BlockChain 
-        self.pending = []   #Data waiting to be approved    
-        self.usedNonces = set()  
-        self.num_of_transactions_per = 1000
+        self.pending = []   #Data waiting to be approved
+        self.num_of_transactions_per = 10
         self.chain_file_path = "/Users/austin/Documents/GitHub/Blockchain/full_chain.json"  
         
     
@@ -21,7 +21,7 @@ class Blockchain:
             "initial": "Genesis Block",
             "previous_hash": "00"
         }
-        if self.hash(genesisBlock)[:3] == "000": self.chain.append(genesisBlock)
+        if self.hash(genesisBlock)[:3] == self.difficulty: self.chain.append(genesisBlock)
         return genesisBlock
         
     def new_block(self, guess):
@@ -32,7 +32,7 @@ class Blockchain:
             "transactions": self.pending,
             "previous_hash": self.hash(self.last_block)
         }
-        if self.hash(block)[0:3] == "000": self.chain.append(block)
+        if self.hash(block)[0:3] == self.difficulty: self.chain.append(block)
         return block
     
     def proof_of_work(self, block):
@@ -42,24 +42,22 @@ class Blockchain:
             nonce +=1
         return nonce
     
-    # @staticmethod
     def validation(self):
         nonce = 0
         hex_guess = self.hash(self.new_block(nonce))
-        while hex_guess[:3] != "000":                               #change difficulty in newblock & validation functions, bad
+        while hex_guess[:3] != self.difficulty:                               #change difficulty in newblock & validation functions, bad
             nonce +=1
             hex_guess = self.hash(self.new_block(nonce))
-            # print(f"\nhexidecimal: {hex_guess}\nnonce: {nonce} \n") #<- next hexidecimal & nonce attempt
+            #print(f"\nhexidecimal: {hex_guess}\nnonce: {nonce} \n") #<- next hexidecimal & nonce attempt
             #time.sleep(1)
         self.successful_hash = hex_guess
-        #print(f"Success: {hex_guess}\nnonce:{nonce}")       #Successful hexidecimal & nonce
+        print(f"Nonce:{nonce}\nHexidecimal: {hex_guess}\n")       #Successful hexidecimal & nonce
         return nonce
 
-    
     def genesis_validation(self):
         nonce = 0
         hex_guess = self.hash(self.genesis_block(nonce))
-        while hex_guess[:3] != "000":
+        while hex_guess[:3] != self.difficulty:
             nonce +=1
             hex_guess = self.hash(self.genesis_block(nonce))
         return nonce
@@ -73,6 +71,7 @@ class Blockchain:
                 "amount": amount,
             })
             if len(self.pending) >= self.num_of_transactions_per:
+                print(f"{self.num_of_transactions_per} instances in pending list reached. Validating...")
                 self.validation()
                 self.pending = []
         
@@ -103,7 +102,6 @@ class Blockchain:
         with open(self.chain_file_path) as master:
             their_block_compare = None
             correct_block_compare = None
-            verified_blocks = 0
             correct_chain = json.loads(master.read())
             # print(str(len(their_chain)), str(len(correct_chain)))
             # print(len(correct_chain))
@@ -117,9 +115,6 @@ class Blockchain:
             
             return(their_block_compare == correct_block_compare)
 
-    @property
-    def difficulty():
-        pass # in both validation/block functions
     def view_block(self, block_num, key=None):
         if key is None: return self.chain[block_num]
         else: return self.chain[block_num][key]
@@ -149,31 +144,35 @@ class Blockchain:
     def main(self):
         # for i in range(20):
         self.start_check_list()
+        print('Verified')
         #self.write_out(output=None)        
-        for i in range(20, randint(3000,300000)):
+        #for i in range(20, randint(100,500)):
+        for i in range(55):
             with open("first-names.txt", "r") as file:
                 name = choice(list(file))                
-                amount = randint(1,30000)
+                amount = randint(1,3000)
                 self.newTransaction((name[:3], name[2:],str(amount)+" BTC"))
         self.write_out(self.chain, file_path=self.chain_file_path)
-        print(self.view_block(-1))
+        return(len(self.pending), self.view_block(block_num=-1)['index'], self.view_block(-1))
 
             #self.newTransaction(())
         #self.newTransaction(("Austin","Antonio","20 BTC"),("Vader","Frodo","8 BTC"),("Will","Sam","1000 BTC"),("Arron","Annie","1000 BTC"),("Ace","Ryan","103 BTC"),("Adam","Leslie","1090 BTC"),("Deandre","Houston","90 BTC"))
         #self.newTransaction(("After", "Write", "$1"))
-        return(f"\nstill pending({len(self.pending)})\nchain: {self.chain}")
 
 
     
 if __name__ == "__main__":
     start_time = time.time()
-    Blockchain().main() 
-    print(time.time() - start_time)
+    still_pending,num_of_blks, last_block = Blockchain().main()
+    print()
+    runtime = round(time.time() - start_time, 2)
+    print(f'\nLast Block:\n{last_block}\n\nStill Pending: {still_pending}\nRuntime: {str(runtime)} seconds \nBlock created every {runtime/num_of_blks} seconds')
     # with open('/Users/austin/Documents/GitHub/Blockchain/full_chain.json', 'r') as full_block_list:
     #     print(full_block_list.read())
 
 #number transactions
-#one difficulty function, in both validation/block creation
+#Verification prob when difficulty changed
+#compare block validation to other nodes
 #chain is starting from scratch each time
 #download chain if not found
 #reward system?
